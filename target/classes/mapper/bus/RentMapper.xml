@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qfedu.bus.mapper.RentMapper">
+
+    <!--定义resultMap-->
+    <resultMap id="base_result_data" type="com.qfedu.bus.domain.Rent">
+        <!--数据库表字段和domian中user字段的对应关系-->
+        <id column="rentid" jdbcType="VARCHAR" property="rentid" />
+        <result column="price" jdbcType="DOUBLE" property="price" />
+        <result column="begindate" jdbcType="TIMESTAMP" property="begindate" />
+        <result column="returndate" jdbcType="TIMESTAMP" property="returndate" />
+        <result column="rentflag" jdbcType="DOUBLE" property="rentflag" />
+        <result column="identity" jdbcType="VARCHAR" property="identity" />
+        <result column="carnumber" jdbcType="VARCHAR" property="carnumber" />
+        <result column="opername" jdbcType="VARCHAR" property="opername" />
+        <result column="createtime" jdbcType="TIMESTAMP" property="createtime" />
+    </resultMap>
+
+    
+    <sql id="rent_column_list">
+        rentid, price, begindate, returndate, rentflag, identity, carnumber, opername, createtime
+    </sql>
+
+      <!--
+       用户带条件的全查询
+      -->
+    <select id="queryAllRent" resultMap="base_result_data">
+        select <include refid="rent_column_list"/> from bus_rent
+
+        <where>
+            <if test="rentid != null and rentid !=''">
+                and rentid like concat("%",#{rentid},"%")
+            </if>
+            <if test="identity != null and identity !=''">
+                and identity like concat("%",#{identity},"%")
+            </if>
+            <if test="carnumber != null and carnumber !=''">
+                and carnumber like concat("%",#{carnumber},"%")
+            </if>
+            <if test="begindate != null">
+                and cteatetime >= #{begindate}
+            </if>
+            <if test="rentflag != null">
+                and rentflag = #{rentflag}
+            </if>
+        </where>
+            order by createtime desc
+    </select>
+
+    
+    <!--添加客户
+    <sql id="rent_column_list">
+        rentid, price, begindate, returndate, rentflag, identity, carnumber, opername, createtime
+    </sql>
+    -->
+    <insert id="addRent">
+        insert into bus_rent
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="rentid != null">
+                rentid,
+            </if>
+            <if test="price != null">
+                price,
+            </if>
+            <if test="begindate != null">
+                begindate,
+            </if>
+            <if test="returndate != null">
+                returndate,
+            </if>
+            <if test="rentflag != null">
+                rentflag,
+            </if>
+            <if test="identity != null">
+                identity,
+            </if>
+            <if test="carnumber != null">
+                carnumber,
+            </if>
+            <if test="opername != null">
+                opername,
+            </if>
+            <if test="createtime != null">
+                createtime,
+            </if>
+          </trim>
+
+         <trim prefix="values (" suffix=")" suffixOverrides=",">
+--              rentid, price, begindate, returndate, rentflag, identity, carnumber, opername, createtime
+            <if test="rentid != null">
+                #{rentid},
+            </if>
+            <if test="price != null">
+                #{price},
+            </if>
+            <if test="begindate != null">
+                #{begindate},
+            </if>
+            <if test="returndate != null">
+                #{returndate},
+            </if>
+            <if test="rentflag != null">
+                #{rentflag},
+            </if>
+            <if test="identity != null">
+                #{identity},
+            </if>
+            <if test="carnumber != null">
+                #{carnumber},
+            </if>
+             <if test="opername != null">
+                 #{opername},
+             </if>
+             <if test="createtime != null">
+                 #{createtime},
+             </if>
+        </trim>
+    </insert>
+
+    <!--根据车牌查询车辆对象-->
+    <!--<select id="selectCarByCarNumer" resultMap="base_result_data">
+        select <include refid="car_column_list"/> from bus_car
+        where carnumber = #{carNumber}
+    </select>-->
+
+    <!--根据carNumber进行删除车辆-->
+  <!--  <delete id="deleteCarByCarNum">
+        delete from bus_car  where carnumber = #{carNumber}
+    </delete>
+-->
+    <!--更出租单的方法
+        rentid, price, begindate, returndate, rentflag, identity, carnumber, opername, createtime    -->
+   <update id="updateRent">
+         update bus_rent
+         <set>
+             <if test="price != null">
+                 price = #{price},
+             </if>
+             <if test="begindate != null">
+                 begindate = #{begindate},
+             </if>
+
+             <if test="returndate != null">
+                 returndate = #{returndate},
+             </if>
+             <if test="rentflag != null">
+                 rentflag = #{rentflag},
+             </if>
+             <if test="identity != null">
+                 identity = #{identity},
+             </if>
+             <if test="carnumber != null">
+                 carnumber = #{carnumber},
+             </if>
+             <if test="opername != null">
+                 opername = #{opername},
+             </if>
+         </set>
+             where rentid = #{rentid}
+     </update>
+
+
+    <!--根据id查询出租单-->
+    <select id="selectRentById" resultMap="base_result_data" >
+        select  <include refid="rent_column_list"/> from bus_rent
+        where rentid = #{rentid}
+    </select>
+
+    <!--根据id删除出租单-->
+    <delete id="deleteRentById">
+        delete from bus_rent where rentid = #{rentid}
+    </delete>
+</mapper>

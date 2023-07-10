@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qfedu.bus.mapper.CheckMapper">
+
+    <!--定义返回类型resultMap-->
+    <resultMap id="check_result_data" type="com.qfedu.bus.domain.Check">
+        <!--数据库表字段和domain中check字段的映射关系-->
+        <id column="checkid" jdbcType="VARCHAR" property="checkid" />
+        <result column="checkdate" jdbcType="TIMESTAMP" property="checkdate" />
+        <result column="checkdesc" jdbcType="VARCHAR" property="checkdesc" />
+        <result column="problem" jdbcType="VARCHAR" property="problem" />
+        <result column="paymoney" jdbcType="DOUBLE" property="paymoney" />
+        <result column="opername" jdbcType="VARCHAR" property="opername" />
+        <result column="rentid" jdbcType="VARCHAR" property="rentid" />
+        <result column="createtime" jdbcType="TIMESTAMP" property="createtime" />
+    </resultMap>
+
+    <sql id="check_cloumn_list">
+        checkid,checkdate,checkdesc,problem,paymoney,opername,rentid,createtime
+    </sql>
+
+    <!--    添加出租单-->
+    <insert id="addCheck">
+        insert into bus_check
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="checkid != null">
+                checkid,
+            </if>
+            <if test="checkdate != null">
+                checkdate,
+            </if>
+            <if test="checkdesc != null">
+                checkdesc,
+            </if>
+            <if test="problem != null">
+                problem,
+            </if>
+            <if test="paymoney != null">
+                paymoney,
+            </if>
+            <if test="opername != null">
+                opername,
+            </if>
+            <if test="rentid != null">
+                rentid,
+            </if>
+            <if test="createtime != null">
+                createtime,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="checkid != null">
+                #{checkid},
+            </if>
+            <if test="checkdate != null">
+                #{checkdate},
+            </if>
+            <if test="checkdesc != null">
+                #{checkdesc},
+            </if>
+            <if test="problem != null">
+                #{problem},
+            </if>
+            <if test="paymoney != null">
+                #{paymoney},
+            </if>
+            <if test="opername != null">
+                #{opername},
+            </if>
+            <if test="rentid != null">
+                #{rentid},
+            </if>
+            <if test="createtime != null">
+                #{createtime},
+            </if>
+        </trim>
+    </insert>
+
+    <!--检查单带条件的全查询-->
+    <select id="queryAllCheck" resultMap="check_result_data">
+        select
+        <include refid="check_cloumn_list"/>
+        from bus_check
+        <where>
+            <if test="checkid!=null and checkid!=''">
+                and checkid like concat("%",#{checkid},"%")
+            </if>
+            <if test="problem!=null and problem!=''">
+                and problem like concat("%",#{problem},"%")
+            </if>
+            <if test="checkdesc!=null and checkdesc!=''">
+                and checkdesc like concat("%",#{checkdesc},"%")
+            </if>
+            <if test="rentid!=null and rentid!=''">
+                and rentid like concat("%",#{rentid},"%")
+            </if>
+            <if test="startTime!=null">
+                and createtime >= #{startTime}
+            </if>
+            <if test="endTime!=null">
+                and checkdate <![CDATA[<=]]>#{endTime}
+            </if>
+        </where>
+        order by createtime desc
+    </select>
+
+    <!--    更新检查单-->
+    <update id="updateCheck">
+        update bus_check
+        <set>
+            <if test="checkdate != null">
+                checkdate = #{checkdate},
+            </if>
+            <if test="checkdesc != null">
+                checkdesc = #{checkdesc},
+            </if>
+            <if test="problem != null">
+                problem = #{problem},
+            </if>
+            <if test="paymoney != null">
+                paymoney = #{paymoney},
+            </if>
+            <if test="opername != null">
+                opername = #{opername},
+            </if>
+            <if test="rentid != null">
+                rentid = #{rentid},
+            </if>
+            <if test="createtime != null">
+                createtime = #{createtime},
+            </if>
+        </set>
+        where checkid = #{checkid}
+    </update>
+
+
+    <!--    根据id删除出租单-->
+    <delete id="deleteCheckById">
+        delete from bus_check where checkid = #{checkid}
+    </delete>
+
+</mapper>

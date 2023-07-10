@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+    <!--①创建扫描器扫描service实现类中的@Service注解-->
+    <context:component-scan base-package="com.qfedu.bus.service.impl"></context:component-scan>
+    <context:component-scan base-package="com.qfedu.sys.service.impl"></context:component-scan>
+
+    <!--②创建事务管理器-->
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <!--我们要在事务管理器中初始化dataSource属性， 那么当前文件中可能看会报错，但是 以后所有与的spring配置文件会合并，后面合并后就可以找到了-->
+        <property name="dataSource" ref="dataSource" />
+    </bean>
+
+    <!--③编写通知advice -&#45;&#45; 事务的增强
+     spring中使用aop 完成动态代理给对象完成增强， 这里我们就是用spring的aop完成事务管理
+    -->
+    <tx:advice id="transactionInterceptor" transaction-manager="transactionManager">
+        <tx:attributes>
+            <!--就是是哪些方法进行声明式事务管理
+                增  删  改  重置等操作需要 事务管理； 一些查询 加载等方法可以设置为read-only
+            -->
+            <tx:method name="add*" propagation="REQUIRED"/>
+            <tx:method name="update*" propagation="REQUIRED"/>
+            <tx:method name="delete*" propagation="REQUIRED"/>
+            <tx:method name="reset*" propagation="REQUIRED"/>
+            <tx:method name="change*" propagation="REQUIRED"/>
+
+            <tx:method name="get*" read-only="true" />
+            <tx:method name="load*" read-only="true" />
+        </tx:attributes>
+    </tx:advice>
+
+
+    <!--④配置aop 完成切点和通知的织入-->
+    <aop:config>
+        <!--配置切点-->
+        <!--        <aop:pointcut id="p1" expression="execution( 返回值类型 包名  类名 方法 （参数）)"/>-->
+        <aop:pointcut id="p1" expression="execution(* com.qfedu.sys.service.impl.*.*(..))"/>
+        <aop:pointcut id="p2" expression="execution(* com.qfedu.bus.service.impl.*.*(..))"/>
+
+        <!--
+        transactionInterceptor 通知的增强
+        pointcut id="p1" 切点
+        advisor 就是组合让增强去增强切点。
+        -->
+        <aop:advisor advice-ref="transactionInterceptor" pointcut-ref="p1"></aop:advisor>
+        <aop:advisor advice-ref="transactionInterceptor" pointcut-ref="p2"></aop:advisor>
+    </aop:config>
+</beans>

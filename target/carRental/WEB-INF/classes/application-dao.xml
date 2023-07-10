@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd">
+
+    <!--①引入编写的jdbc.properties文件
+    <bean id="" class="">  java中  new 对象 ， 这种配置的方式是spring通过ioc创建的，spring容器进行维护
+     <property name="locations" value="classpath:jdbc.properties"></property>  给对象的属性进行注入初始化  set方式
+    -->
+    <bean id="propertySourcesPlaceholderConfigurer" class="org.springframework.context.support.PropertySourcesPlaceholderConfigurer">
+        <!--property 就是通过set方式完成对象中属性的注入-->
+        <property name="locations" value="classpath:jdbc.properties"></property>
+    </bean>
+
+    <!--    ②创建数据源DataSource-->
+    <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource">
+        <property name="driverClassName" value="${jdbc.driverClass}"></property>
+        <property name="url" value="${jdbc.jdbcUrl}" ></property>
+        <property name="username" value="${jdbc.user}" ></property>
+        <property name="password" value="${jdbc.password}" ></property>
+    </bean>
+
+
+    <!--③配置sqlSessionFactoryBean 对象
+     spring和mybatis整合， 那么mybatis中的SqlSession对象的构建和管理都交给了spring
+    -->
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="dataSource"/>
+        <property name="configLocation" value="classpath:mybatis-config.xml" />
+        <property name="mapperLocations">
+            <array>
+                <value>classpath:mapper/*/*Mapper.xml</value>
+            </array>
+        </property>
+    </bean>
+
+
+    <!--④配置mapper扫描
+        扫描所有的mapper 并且创建对象, 目的是创建mapper的动态代理对象
+    -->
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" value="com.qfedu.sys.mapper,com.qfedu.bus.mapper" />
+    </bean>
+
+</beans>
